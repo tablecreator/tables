@@ -8,12 +8,22 @@
     </meta>
 
     <execute><![CDATA[
+var is_array = function (value) {
+    return value &&
+        typeof value === 'object' &&
+        typeof value.length === 'number' &&
+        typeof value.splice === 'function' &&
+        !(value.propertyIsEnumerable('length'));
+};
+
 var cookie = "";
 function getcookie(headers, cookie) {
   y.log("Redirect: 2a");
   var cookies = headers['set-cookie'];
   y.log("Redirect: 2b");
   y.log(cookies);
+  y.log(cookies instanceof Array);
+  y.log(is_array(cookies);
   if (cookies instanceof Array) {
     y.log("Redirect: 2c");
     for (c in cookies) {
