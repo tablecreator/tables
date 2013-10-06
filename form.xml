@@ -79,7 +79,7 @@ function handleRedirect(request) {
   }
   return request;
 }
-var request = y.rest(url).followRedirects(false).accept("text/html").get();
+var request = y.rest(url).followRedirects(true).accept("text/html").get();
 request = handleRedirect(request);
 var headers = request.headers;
 //y.log(request.response);
@@ -141,7 +141,7 @@ if (!action.match(/^https?:\/\//)) {
 }
 var method = form.@method.toString().toLowerCase();
 var params = "";
-var submit = y.rest(action).accept("text/html").followRedirects(false);
+var submit = y.rest(action).accept("text/html").followRedirects(true);
 if (cookie != "") {
   submit = submit.header('Cookie', cookie);
 }
