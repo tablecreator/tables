@@ -36,7 +36,7 @@ function getcookie(headers, cookie) {
   y.log(cookies);
   y.log(cookies instanceof Array); // false
   y.log(is_array(cookies));
-  if (cookies instanceof Array or true) {
+  if (cookies instanceof Array || true) {
     y.log("Redirect: 2c");
     for (c in cookies) {
       cookie += cookies[c].split(';')[0] + "; "
