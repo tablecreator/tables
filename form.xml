@@ -61,13 +61,16 @@ function handleRedirect(request) {
     y.log("Redirect: 3");
     y.log(cookie);
     y.log("Redirect: 4");
+    y.log(request.url);
     request = y.rest(request.headers.location).accept("text/html");
+    y.log(request.url);
     y.log("Redirect: 5");
     if (cookie != "") {
       y.log("Redirect: 6");
       request = request.header("Cookie", cookie);
     }
     y.log("Redirect: 7");
+    y.log(request.url);
     request = request.get();
     y.log(request.url);
     y.log("Redirect: 8");
