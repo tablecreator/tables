@@ -52,6 +52,7 @@ function getcookie(headers, cookie) {
 }
 function handleRedirect(request) {
   y.log("Redirect: 1");
+  y.log(request.url);
   while (request.status == 301 || request.status == 302) {
     y.log("Redirect: 2");
     y.log(request.status);
@@ -68,7 +69,10 @@ function handleRedirect(request) {
     }
     y.log("Redirect: 7");
     request = request.get();
+    y.log(request.url);
     y.log("Redirect: 8");
+    y.log("New status is:");
+    y.log(request.status);
   }
   return request;
 }
