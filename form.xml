@@ -9,6 +9,13 @@
 
     <execute><![CDATA[
 var is_array = function (value) {
+    y.log("In is_array:");
+    y.log(value);
+    y.log(typeof value === 'object');
+    y.log(typeof value.length === 'number');
+    y.log(typeof value.splice === 'function');
+    y.log(!(value.propertyIsEnumerable('length')));
+    y.log("Returning from is_array");
     return value &&
         typeof value === 'object' &&
         typeof value.length === 'number' &&
