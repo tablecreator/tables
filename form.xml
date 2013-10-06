@@ -23,7 +23,7 @@ function getcookie(headers, cookie) {
   y.log("Redirect: 2b");
   y.log(cookies);
   y.log(cookies instanceof Array);
-  y.log(is_array(cookies);
+  y.log(is_array(cookies));
   if (cookies instanceof Array) {
     y.log("Redirect: 2c");
     for (c in cookies) {
