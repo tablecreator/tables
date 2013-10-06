@@ -33,6 +33,7 @@ function handleRedirect(request) {
   while (request.status == 301 || request.status == 302) {
     y.log("Redirect: 2");
     y.log(request.status);
+    y.log(request.headers);
     cookie = getcookie(request.headers, cookie);
     y.log("Redirect: 3");
     y.log(cookie);
@@ -126,7 +127,7 @@ for (i in form.input) {
     //y.log("input is:");
     //y.log(input);
     //var inputAsString = '';
-    //for (property in input) { inputAsString += property + ': ' + input[property]+'; '; }
+    //for (property in: input) { inputAsString += property + ': ' + input[property]+'; '; }
     // y.log("input as a string is:");
     // y.log(inputAsString);
     
