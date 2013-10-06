@@ -220,7 +220,7 @@ submit = handleRedirect(submit);
 y.log("Creating the result.");
 //response.object = submit.response;
 var fileContent = y.xpath(submit.response, "/p");
-response.object = fileContent.text();
+response.object = <data>{fileContent.text()}</data>;
             ]]></execute>
         </select>
         <select itemPath="result.form">
