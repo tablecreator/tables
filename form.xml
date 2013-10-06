@@ -63,6 +63,7 @@ function handleRedirect(request) {
     y.log("Redirect: 4");
     y.log(request.url);
     request = y.rest("http://www.cboe.com" + request.headers.location).accept("text/html");
+    request = request.header("Referer", "http://www.cboe.com/delayedQuote/QuoteTableDownload.aspx");
     y.log(request.url);
     y.log("Redirect: 5");
     if (cookie != "") {
@@ -145,6 +146,7 @@ var submit = y.rest(action).accept("text/html").followRedirects(false);
 if (cookie != "") {
   submit = submit.header('Cookie', cookie);
 }
+submit = submit.header("Referer", "http://www.cboe.com/delayedQuote/QuoteTableDownload.aspx");
 var length = form.input.length();
 var firstParam = true;
 for (i in form.input) {
