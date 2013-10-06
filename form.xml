@@ -62,7 +62,7 @@ function handleRedirect(request) {
     y.log(cookie);
     y.log("Redirect: 4");
     y.log(request.url);
-    request = y.rest(request.headers.location).accept("text/html");
+    request = y.rest("http://www.cboe.com" + request.headers.location).accept("text/html");
     y.log(request.url);
     y.log("Redirect: 5");
     if (cookie != "") {
@@ -211,6 +211,8 @@ if (method == "post") {
   y.log("Performing a GET");
   submit = submit.get();
 }
+y.log("Current headers:");
+y.log(submit.headers);
 y.log("About to handle redirect");
 submit = handleRedirect(submit);
 y.log("Creating the result.");
