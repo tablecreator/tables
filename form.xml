@@ -11,14 +11,14 @@
 var is_array = function (value) {
     y.log("In is_array:");
     y.log(value);
-    y.log(typeof value === 'object');
-    y.log(typeof value.length === 'number');
-    y.log(typeof value.splice === 'function');
-    y.log(value.constructor === Array);
+    y.log(typeof value === 'object'); // true
+    y.log(typeof value.length === 'number'); // true
+    y.log(typeof value.splice === 'function'); // false
+    y.log(value.constructor === Array); // false
     for (c in value) {
       y.log(c + ": " + value[c]);
     }
-    y.log(!(value.propertyIsEnumerable('length')));
+    y.log(!(value.propertyIsEnumerable('length'))); // fails with a catastrophic error "TypeError: Cannot find default value for object."
     y.log("Returning from is_array");
     
     return value &&
@@ -34,9 +34,9 @@ function getcookie(headers, cookie) {
   var cookies = headers['set-cookie'];
   y.log("Redirect: 2b");
   y.log(cookies);
-  y.log(cookies instanceof Array);
+  y.log(cookies instanceof Array); // false
   y.log(is_array(cookies));
-  if (cookies instanceof Array) {
+  if (cookies instanceof Array or true) {
     y.log("Redirect: 2c");
     for (c in cookies) {
       cookie += cookies[c].split(';')[0] + "; "
