@@ -188,7 +188,7 @@ for (i in form.input) {
       y.log("input is:");
       y.log(input);
       var inputAsString = '';
-      for (property in: input) {
+      for (property in input) {
         inputAsString += property + ': ' + input[property]+'; ';
       }
       y.log("input as a string is:");
