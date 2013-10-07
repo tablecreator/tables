@@ -8,82 +8,110 @@
     </meta>
 
     <execute><![CDATA[
-var is_array = function (value) {
-    y.log("In is_array:");
+
+// Manual adjustments:
+// * Using (instead of request.headers.location as it is merely the absolute path
+//   part of the full URL)
+//    "http://www.cboe.com" + request.headers.location
+// * Adding Referer header.
+// * Form input fields with type "image" or "reset" are not included in the
+//   submission via POST
+
+var DEBUG_IS_LIKE_ARRAY = false, DEBUG_COOKIES = false, DEBUG_REDIRECT = false;
+var DEBUG_SUBMIT = false, DEBUG = false;
+// When value=cookies, (typeof value === 'object') and (typeof value.length === 'number')
+// are true; (typeof value.splice === 'function') and (value.constructor === Array) are
+// false. The disabled "for" loop runs successfully. However, logging
+//    !(value.propertyIsEnumerable('length'))
+// fails with a catastrophic error "TypeError: Cannot find default value for object."
+var isLikeArray = function (value) {
+  if(DEBUG_IS_LIKE_ARRAY) {
+    y.log("In isLikeArray:");
     y.log(value);
-    y.log(typeof value === 'object'); // true
-    y.log(typeof value.length === 'number'); // true
-    y.log(typeof value.splice === 'function'); // false
-    y.log(value.constructor === Array); // false
+    y.log(typeof value === 'object');
+    y.log(typeof value.length === 'number');
+    y.log(typeof value.splice === 'function');
+    y.log(value.constructor === Array);
     for (c in value) {
       y.log(c + ": " + value[c]);
     }
-    y.log(!(value.propertyIsEnumerable('length'))); // fails with a catastrophic error "TypeError: Cannot find default value for object."
-    y.log("Returning from is_array");
     
-    return value &&
-        typeof value === 'object' &&
-        typeof value.length === 'number' &&
-        typeof value.splice === 'function' &&
-        !(value.propertyIsEnumerable('length'));
+    y.log("Returning from isLikeArray");
+  }
+  
+  return value &&
+    typeof value === 'object' &&
+    typeof value.length === 'number';
 };
 
 var cookie = "";
 function getcookie(headers, cookie) {
-  y.log("Redirect: 2a");
+  if(DEBUG_COOKIES) y.log("Redirect: 2a");
   var cookies = headers['set-cookie'];
-  y.log("Redirect: 2b");
-  y.log(cookies);
-  y.log(cookies instanceof Array); // false
-  // y.log(is_array(cookies)); // fails catastrophically - I have to comment out the failing line(s)
-  if (cookies instanceof Array || true) {
-    y.log("Redirect: 2c");
+  if(DEBUG_COOKIES) {
+    y.log("Redirect: 2b");
+    y.log(cookies);
+    y.log(cookies instanceof Array); // false
+    y.log(isLikeArray(cookies));
+  }
+  
+  if (cookies instanceof Array || isLikeArray(cookies)) {
+    if(DEBUG_COOKIES) y.log("Redirect: 2c");
     for (c in cookies) {
       cookie += cookies[c].split(';')[0] + "; "
     }
   } else {
-    y.log("Redirect: 2d");
+    if(DEBUG_COOKIES) y.log("Redirect: 2d");
     if (cookies) {
       cookie = cookies.split(';')[0] + "; ";
     }
   }
-  y.log("Redirect: 2e");
+  if(DEBUG_COOKIES) y.log("Redirect: 2e");
   return cookie;
 }
+
 function handleRedirect(request) {
-  y.log("Redirect: 1");
-  y.log(request.url);
+  if(DEBUG_REDIRECT) { y.log("Redirect: 1"); y.log(request.url); }
   while (request.status == 301 || request.status == 302) {
-    y.log("Redirect: 2");
-    y.log(request.status);
-    y.log(request.headers);
+    if(DEBUG_REDIRECT) { y.log("Redirect: 2"); y.log(request.status); y.log(request.headers); }
+    
     cookie = getcookie(request.headers, cookie);
-    y.log("Redirect: 3");
-    y.log(cookie);
-    y.log("Redirect: 4");
-    y.log(request.url);
+    if(DEBUG_REDIRECT) {
+      y.log("Redirect: 3"); y.log(cookie);
+      y.log("Redirect: 4"); y.log(request.url);
+    }
+    
+    // request.headers.location turns out to be the absolute path
+    // "/delayedQuote/QuoteData.dat"; the host is implied to be null, hence I
+    // have to insert it in the front.
     request = y.rest("http://www.cboe.com" + request.headers.location).accept("text/html");
     request = request.header("Referer", "http://www.cboe.com/delayedQuote/QuoteTableDownload.aspx");
-    y.log(request.url);
-    y.log("Redirect: 5");
+    if(DEBUG_REDIRECT) { y.log(request.url); y.log("Redirect: 5"); }
+    
     if (cookie != "") {
-      y.log("Redirect: 6");
+      if(DEBUG_REDIRECT) y.log("Redirect: 6");
       request = request.header("Cookie", cookie);
     }
-    y.log("Redirect: 7");
-    y.log(request.url);
+    
+    if(DEBUG_REDIRECT) {
+      y.log("Redirect: 7");
+      y.log(request.url);
+    }
+    
     request = request.get();
-    y.log(request.url);
-    y.log("Redirect: 8");
-    y.log("New status is:");
-    y.log(request.status);
+    
+    if(DEBUG_REDIRECT) {
+      y.log(request.url); y.log("Redirect: 8");
+      y.log("New status is:"); y.log(request.status);
+    }
   }
   return request;
 }
+
 var request = y.rest(url).followRedirects(false).accept("text/html").get();
 request = handleRedirect(request);
 var headers = request.headers;
-//y.log(request.response);
+if(DEBUG) y.log(request.response);
 var result = request.response..form;
 var forms = <result/>;
 for (var f in result) {
@@ -141,6 +169,7 @@ if (!action.match(/^https?:\/\//)) {
   }
 }
 var method = form.@method.toString().toLowerCase();
+
 var params = "";
 var submit = y.rest(action).accept("text/html").followRedirects(false);
 if (cookie != "") {
@@ -155,15 +184,20 @@ for (i in form.input) {
   var name = inp.@name;
   var value = inp.@value;
   if (type != "hidden" && type != "submit" && type != "reset") {
-    //y.log("input is:");
-    //y.log(input);
-    //var inputAsString = '';
-    //for (property in: input) { inputAsString += property + ': ' + input[property]+'; '; }
-    // y.log("input as a string is:");
-    // y.log(inputAsString);
+    if(DEBUG_SUBMIT) {
+      y.log("input is:");
+      y.log(input);
+      var inputAsString = '';
+      for (property in: input) {
+        inputAsString += property + ': ' + input[property]+'; ';
+      }
+      y.log("input as a string is:");
+      y.log(inputAsString);
     
-    y.log("Need value for name=\"" + name + "\"");
-    y.log(name.toString().length);
+      y.log("Need value for name=\"" + name + "\"");
+      y.log(name.toString().length);
+    }
+    
     if(name.toString().length == 0) {
       // y.log("Found an empty name; using an empty value.");
       // value = "";
@@ -173,9 +207,9 @@ for (i in form.input) {
       // with underscores, so that the value of that input field can be set with
       // "input.name=value". As "name" is some sort of XML entity, need toString().
       var mangledName = name.toString().replace(/\$/g, "_");
-      y.log("Looking up mangled name \"" + mangledName + "\"");
+      if(DEBUG_SUBMIT) y.log("Looking up mangled name \"" + mangledName + "\"");
       var inputvalue = input[ mangledName ];
-      y.log("Result: " + inputvalue);
+      if(DEBUG_SUBMIT) y.log("Result: " + inputvalue);
       if (inputvalue) {
         value = inputvalue;
       }
@@ -189,9 +223,7 @@ for (i in form.input) {
   }
   
   if (method == "post") {
-    y.log("Adding to params:");
-    y.log(name);
-    y.log(value);
+    if(DEBUG_SUBMIT) { y.log("Adding to params:"); y.log(name); y.log(value); }
     if(! firstParam) {
       params += "&";
     } else {
@@ -199,25 +231,28 @@ for (i in form.input) {
     }
       
     params += encodeURIComponent(name) + "=" + encodeURIComponent(value);
-    // params += name + "=" + value + (i == length - 1 ? "" : "&");
   } else {
     submit = submit.query(name, value);
   }
 }
-y.log("About to do a POST or a GET");
+
+if(DEBUG) y.log("About to do a POST or a GET");
 if (method == "post") {
-  y.log("Sending a post with params:");
-  y.log(params);
+  if(DEBUG) { y.log("Sending a post with params:"); y.log(params); }
   submit = submit.contentType("application/x-www-form-urlencoded").post(params);
 } else {
-  y.log("Performing a GET");
+  if(DEBUG) { y.log("Performing a GET"); }
   submit = submit.get();
 }
-y.log("Current headers:");
-y.log(submit.headers);
-y.log("About to handle redirect");
+
+if(DEBUG) {
+  y.log("Current headers:");
+  y.log(submit.headers);
+  y.log("About to handle redirect");
+}
+
 submit = handleRedirect(submit);
-y.log("Creating the result.");
+if(DEBUG) y.log("Creating the result.");
 //response.object = submit.response;
 var fileContent = y.xpath(submit.response, "//p");
 response.object = <data>{fileContent.text()}</data>;
